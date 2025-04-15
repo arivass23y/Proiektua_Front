@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { LoginServiceService } from '../zerbitzuak/login-service.service';
 import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+declare const google: any;
+
 
 @Component({
   selector: 'app-login',
@@ -32,6 +34,34 @@ export class LoginPage implements OnInit {
     this.changeLanguage();
   }
   
+  
+  onGoogleLogin() {
+    google.accounts.id.initialize({
+      client_id: '194803716129-2rj4mdmmoktc1o79k0q45kfnv1a5222f.apps.googleusercontent.com', // Sustituye con el tuyo
+      callback: async (response: any) => {
+        const idToken = response.credential;
+  
+        try {
+          const success = await firstValueFrom(this.loginService.loginWithGoogle(idToken));
+  
+          if (success) {
+            this.loginMessage = this.translate.instant('login.messageOk');
+            this.loginMessageType = 'success';
+            this.router.navigate(['/home']);
+          } else {
+            this.loginMessage = this.translate.instant('login.messageFail');
+            this.loginMessageType = 'error';
+          }
+        } catch (error) {
+          console.error("Error en Google login:", error);
+          this.loginMessage = this.translate.instant('login.messageNotOk');
+          this.loginMessageType = 'error';
+        }
+      }
+    });
+  
+    google.accounts.id.prompt(); // Esto abre el popup
+  }
 
   async onLogin() {
     this.submitted = true;

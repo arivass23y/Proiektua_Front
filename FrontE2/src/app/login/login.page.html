@@ -32,6 +32,11 @@
     <ion-button expand="block" class="login-button" (click)="onLogin()">
       <b>{{ 'login.boton' | translate }}</b>
     </ion-button>
+    <ion-button expand="block" color="primary" (click)="onGoogleLogin()">
+      <ion-icon slot="start" name="logo-google"></ion-icon>
+      {{ 'login.google' | translate }}
+    </ion-button>
+    
   </div>
   
   
