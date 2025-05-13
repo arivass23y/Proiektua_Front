@@ -42,9 +42,11 @@ export class LoginServiceService {
   
   loginWithGoogle(idToken: string): Observable<boolean> {
     console.log(idToken);
-    return this.http.post<any>(`${environment.url}auth/google`, { token: idToken }).pipe(
+    return this.http.post<any>(`${environment.url}erabiltzaileak/google`, { token: idToken }).pipe(
       map(response => {
         if (response && response.username && response.rola) {
+          console.log("login con google");
+
           this.user = response;
           localStorage.setItem('username', response.username);
           localStorage.setItem('role', response.rola);

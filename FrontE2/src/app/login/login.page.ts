@@ -33,6 +33,11 @@ export class LoginPage implements OnInit {
 
   ngOnInit() {
     this.translate.setDefaultLang(this.selectedLanguage);
+    GoogleAuth.initialize({
+      clientId:'862214888792-r4fau3jo13m2mhurf203k34st03i3oma.apps.googleusercontent.com',
+      scopes: ['profile', 'email'],
+      grantOfflineAccess:true
+    });
   }
 
   changeLanguage() {
@@ -46,35 +51,102 @@ export class LoginPage implements OnInit {
   
   user='';
   
+
   async onGoogleLogin() {
-    this.user= (await GoogleAuth.signIn()).email;
-    console.log(this.user);
-    // google.accounts.id.initialize({
-    //   client_id: '194803716129-2rj4mdmmoktc1o79k0q45kfnv1a5222f.apps.googleusercontent.com', // Sustituye con el tuyo
-    //   callback: async (response: any) => {
-    //     const idToken = response.credential;
+    try {
+      // Aquí creamos una promesa que se resuelve en el callback de Google
+      const idToken = await new Promise<string>((resolve, reject) => {
+        google.accounts.id.initialize({
+          client_id: '862214888792-r4fau3jo13m2mhurf203k34st03i3oma.apps.googleusercontent.com', // Asegúrate de que es tipo Web
+          callback: (response: any) => {
+            if (response.credential) {
+              resolve(response.credential);
+            } else {
+              reject('No se recibió credential');
+            }
+          },
+          ux_mode: 'popup',
+        });
   
-    //     try {
-    //       const success = await firstValueFrom(this.loginService.loginWithGoogle(idToken));
+        google.accounts.id.prompt((notification: any) => {
+          if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+            reject('El usuario cerró el popup o fue omitido');
+          }
+        });
+      });
   
-    //       if (success) {
-    //         this.loginMessage = this.translate.instant('login.messageOk');
-    //         this.loginMessageType = 'success';
-    //         this.router.navigate(['/home']);
-    //       } else {
-    //         this.loginMessage = this.translate.instant('login.messageFail');
-    //         this.loginMessageType = 'error';
-    //       }
-    //     } catch (error) {
-    //       console.error("Error en Google login:", error);
-    //       this.loginMessage = this.translate.instant('login.messageNotOk');
-    //       this.loginMessageType = 'error';
-    //     }
-    //   }
-    // });
-  
-    // google.accounts.id.prompt(); // Esto abre el popup
+      const success = await firstValueFrom(this.loginService.loginWithGoogle(idToken));
+      
+      if (success) {
+        this.loginMessage = this.translate.instant('login.messageOk');
+        this.loginMessageType = 'success';
+        this.router.navigate(['/home']);
+      } else {
+        this.loginMessage = this.translate.instant('login.messageFail');
+        this.loginMessageType = 'error';
+      }
+    } catch (error) {
+      console.error('Google Sign-In error:', error);
+      this.loginMessage = this.translate.instant('login.messageNotOk');
+      this.loginMessageType = 'error';
+    }
   }
+  
+
+  // async onGoogleLogin() {
+  //   try {
+  //     //await GoogleAuth.signOut(); // Limpia sesiones previas
+  
+  //     const googleUser = await GoogleAuth.signIn();
+  //     const idToken = googleUser.authentication.idToken;
+  
+  //     const success = await firstValueFrom(this.loginService.loginWithGoogle(idToken));
+  
+  //     if (success) {
+  //       this.loginMessage = this.translate.instant('login.messageOk');
+  //       this.loginMessageType = 'success';
+  //       this.router.navigate(['/home']);
+  //     } else {
+  //       this.loginMessage = this.translate.instant('login.messageFail');
+  //       this.loginMessageType = 'error';
+  //     }
+  //   } catch (error) {
+  //     console.error('Google Sign-In error:', error);
+  //     this.loginMessage = this.translate.instant('login.messageNotOk');
+  //     this.loginMessageType = 'error';
+  //   }
+  // }
+  
+  // async onGoogleLogin() {
+  //   this.user= (await GoogleAuth.signIn()).email;
+  //   console.log(this.user);
+  //   this.router.navigate(['/home']);
+    // // google.accounts.id.initialize({
+    // //   client_id: '194803716129-2rj4mdmmoktc1o79k0q45kfnv1a5222f.apps.googleusercontent.com', // Sustituye con el tuyo
+    // //   callback: async (response: any) => {
+    // //     const idToken = response.credential;
+  
+    // //     try {
+    // //       const success = await firstValueFrom(this.loginService.loginWithGoogle(idToken));
+  
+    // //       if (success) {
+    // //         this.loginMessage = this.translate.instant('login.messageOk');
+    // //         this.loginMessageType = 'success';
+    // //         this.router.navigate(['/home']);
+    // //       } else {
+    // //         this.loginMessage = this.translate.instant('login.messageFail');
+    // //         this.loginMessageType = 'error';
+    // //       }
+    // //     } catch (error) {
+    // //       console.error("Error en Google login:", error);
+    // //       this.loginMessage = this.translate.instant('login.messageNotOk');
+    // //       this.loginMessageType = 'error';
+    // //     }
+    // //   }
+    // // });
+  
+    // // google.accounts.id.prompt(); // Esto abre el popup
+ // }
 
   async onLogin() {
     this.submitted = true;
