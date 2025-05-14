@@ -40,6 +40,28 @@ export class LoginServiceService {
     );
   }
   
+  loginWithGoogle(idToken: string): Observable<boolean> {
+    console.log(idToken);
+    return this.http.post<any>(`${environment.url}erabiltzaileak/google`, { token: idToken }).pipe(
+      map(response => {
+        if (response && response.username && response.rola) {
+          console.log("login con google");
+
+          this.user = response;
+          localStorage.setItem('username', response.username);
+          localStorage.setItem('role', response.rola);
+          return true;
+        }
+        return false;
+      }),
+      catchError(error => {
+        console.error("Error en login con Google:", error);
+        return of(false);
+      })
+    );
+  }
+
+  
   logout() {
     console.log(localStorage.getItem('role'))
     // Eliminar los datos de login del localStorage

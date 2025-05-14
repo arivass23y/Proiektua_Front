@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Google Login</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+    function handleCredentialResponse(response) {
+      console.log("Encoded JWT ID token: " + response.credential);
+    }
+
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: '194803716129-s0lckiqkmdkaf7bum7k4fb7be333q1t4.apps.googleusercontent.com',
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.prompt(); // Show the prompt
+    }
+  </script>
+</head>
+<body>
+  <h1>Google Login Test</h1>
+  <div id="g_id_onload"></div>
+</body>
+</html>
